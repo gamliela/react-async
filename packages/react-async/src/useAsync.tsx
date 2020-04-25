@@ -149,14 +149,15 @@ function useAsync<T>(arg1: AsyncOptions<T> | PromiseFn<T>, arg2?: AsyncOptions<T
   const { promise, promiseFn, initialValue } = options
   const load = useCallback(() => {
     const isPreInitialized = initialValue && counter.current === 0
+    const counterCurrent = counter.current + 1
     if (promise) {
       start(() => promise)
-        .then(handleResolve(counter.current))
-        .catch(handleReject(counter.current))
+        .then(handleResolve(counterCurrent))
+        .catch(handleReject(counterCurrent))
     } else if (promiseFn && !isPreInitialized) {
       start(() => promiseFn(lastOptions.current, abortController.current))
-        .then(handleResolve(counter.current))
-        .catch(handleReject(counter.current))
+        .then(handleResolve(counterCurrent))
+        .catch(handleReject(counterCurrent))
     }
   }, [start, promise, promiseFn, initialValue, handleResolve, handleReject])
 
@@ -165,9 +166,10 @@ function useAsync<T>(arg1: AsyncOptions<T> | PromiseFn<T>, arg2?: AsyncOptions<T
     (...args) => {
       if (deferFn) {
         lastArgs.current = args
+        const counterCurrent = counter.current + 1
         start(() => deferFn(args, lastOptions.current, abortController.current))
-          .then(handleResolve(counter.current))
-          .catch(handleReject(counter.current))
+          .then(handleResolve(counterCurrent))
+          .catch(handleReject(counterCurrent))
       }
     },
     [start, deferFn, handleResolve, handleReject]
